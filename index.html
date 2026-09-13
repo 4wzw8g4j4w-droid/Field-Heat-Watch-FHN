@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Heat Watch — Hackmann Rd</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #10151a; --panel: #1a2228; --panel-2: #202a31; --line: #2c383f;
+    --text: #f1ede3; --text-dim: #93a1a8;
+    --lvl0: #4d8b7c; --lvl1: #9ab84a; --lvl2: #e3a838; --lvl3: #e2712f; --lvl4: #c5372a;
+    --accent: #6fb8c9;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px;}
+  header{display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--line); padding-bottom:18px; margin-bottom:14px; flex-wrap:wrap; gap:10px;}
+  .eyebrow{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; color:var(--accent); text-transform:uppercase; margin-bottom:6px;}
+  h1{font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:38px; line-height:1; margin:0; letter-spacing:-0.01em;}
+  .loc{color:var(--text-dim); font-size:14px; margin-top:6px;}
+  .updated{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-dim); text-align:right; line-height:1.6;}
+  .updated b{color:var(--accent);}
+  .live-dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--lvl1); margin-right:5px; box-shadow:0 0 0 3px rgba(154,184,74,0.25);}
+  .section-head{display:flex; align-items:baseline; gap:10px; margin:36px 0 14px;}
+  .section-head h2{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:22px; margin:0; letter-spacing:-0.01em;}
+  .section-head .n{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-dim);}
+  .section-sub{color:var(--text-dim); font-size:13.5px; margin:-8px 0 16px; line-height:1.5; max-width:660px;}
+  .week-strip{display:grid; grid-template-columns:repeat(7,1fr); gap:6px;}
+  @media(max-width:640px){.week-strip{grid-template-columns:repeat(3,1fr);}}
+  .day-block{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 6px 12px; text-align:center; cursor:pointer; transition:transform .15s ease, border-color .15s ease;}
+  .day-block:hover{transform:translateY(-2px); border-color:var(--accent);}
+  .day-block.active{border-color:var(--accent); background:var(--panel-2);}
+  .day-block .dow{font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em;}
+  .day-block .date{font-size:12px; color:var(--text-dim); margin-bottom:8px;}
+  .day-block .practice-tag{font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--accent); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; min-height:10px;}
+  .day-block .gauge{width:34px; height:34px; border-radius:50%; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:15px; color:#10151a;}
+  .day-block .hi{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-dim);}
+  .lvl-0{background:var(--lvl0);} .lvl-1{background:var(--lvl1);} .lvl-2{background:var(--lvl2);}
+  .lvl-3{background:var(--lvl3); color:#fff;} .lvl-4{background:var(--lvl4); color:#fff;}
+  .day-detail{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-top:12px; font-size:13.5px; line-height:1.6; display:none;}
+  .day-detail.show{display:block;}
+  .day-detail .dd-title{font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:18px; margin-bottom:4px;}
+  .day-detail .dd-row{color:var(--text-dim);}
+  .day-detail .dd-badge{display:inline-block; padding:2px 9px; border-radius:20px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; margin-top:8px;}
+  .storm-flag{display:inline-block; margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--lvl3); border:1px solid rgba(226,113,47,0.5); border-radius:4px; padding:1px 6px;}
+  .predictor{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:22px;}
+  .p-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px 24px;}
+  @media(max-width:560px){.p-grid{grid-template-columns:1fr;}}
+  .field label{display:block; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); margin-bottom:8px;}
+  .field .val{color:var(--accent); font-weight:600;}
+  input[type=range]{width:100%; -webkit-appearance:none; height:4px; border-radius:2px; background:var(--line); outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--accent); cursor:pointer; border:3px solid var(--bg);}
+  select{width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text); padding:9px 10px; border-radius:6px; font-family:'Inter',sans-serif; font-size:14px;}
+  .result{margin-top:24px; padding-top:22px; border-top:1px solid var(--line); display:flex; gap:20px; align-items:center; flex-wrap:wrap;}
+  .result-gauge{width:76px; height:76px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; flex-direction:column; font-family:'Barlow Condensed',sans-serif; font-weight:800;}
+  .result-gauge .num{font-size:30px; line-height:1;}
+  .result-gauge .lbl{font-size:9px; font-family:'JetBrains Mono',monospace; font-weight:500; text-transform:uppercase;}
+  .result-text{flex:1; min-width:220px;}
+  .result-text .band{font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; margin-bottom:4px;}
+  .result-text p{margin:0; font-size:13.5px; color:var(--text-dim); line-height:1.55;}
+  .log-toggle{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:16px;}
+  .log-toggle .arrow{transition:transform .2s ease; color:var(--text-dim);}
+  .log-toggle.open .arrow{transform:rotate(90deg);}
+  .log-table-wrap{display:none; overflow-x:auto; margin-top:10px; border:1px solid var(--line); border-radius:8px; max-height:520px; overflow-y:auto;}
+  .log-table-wrap.show{display:block;}
+  table{width:100%; border-collapse:collapse; font-size:12px; font-family:'JetBrains Mono',monospace;}
+  th{text-align:left; padding:9px 10px; background:var(--panel-2); color:var(--text-dim); text-transform:uppercase; font-size:10px; letter-spacing:0.05em; font-weight:500; position:sticky; top:0;}
+  td{padding:7px 10px; border-top:1px solid var(--line); white-space:nowrap;}
+  tr:hover td{background:rgba(255,255,255,0.02);}
+  tr.heatwave td{background:rgba(226,113,47,0.06);}
+  .lvl-pill{display:inline-block; width:22px; height:22px; border-radius:5px; text-align:center; line-height:22px; font-weight:700; color:#10151a;}
+  .note-cell{color:var(--text-dim); font-style:italic; white-space:normal; min-width:180px;}
+  footer{margin-top:40px; padding-top:20px; border-top:1px solid var(--line); font-size:12px; color:var(--text-dim); line-height:1.6;}
+  footer strong{color:var(--text);}
+  .methodology{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin-top:20px; font-size:12.5px; color:var(--text-dim); line-height:1.6;}
+  .methodology h3{font-family:'Barlow Condensed',sans-serif; font-size:15px; color:var(--text); margin:0 0 8px;}
+  .methodology ul{margin:8px 0 0; padding-left:18px;}
+  .methodology li{margin-bottom:6px;}
+  .error-box{background:rgba(197,55,42,0.1); border:1px solid rgba(197,55,42,0.4); border-radius:8px; padding:16px; font-size:13.5px; line-height:1.6; color:var(--text-dim);}
+  .error-box strong{color:var(--lvl4);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow"><span class="live-dot"></span>Practice Planning · Not a WBGT Device</div>
+      <h1>Field Heat Watch</h1>
+      <div class="loc" id="locLine">2549 Hackmann Rd, St. Charles, MO</div>
+    </div>
+    <div class="updated" id="updatedLine">Loading forecast…</div>
+  </header>
+
+  <div class="section-head">
+    <h2>This Week</h2>
+    <span class="n">tap a day for detail</span>
+  </div>
+  <div class="section-sub" id="practiceLine">Predicted risk band for your practice window, pulled fresh every Saturday morning from the National Weather Service.</div>
+
+  <div id="weekStripContainer">
+    <div class="week-strip" id="weekStrip"></div>
+    <div class="day-detail" id="dayDetail"></div>
+  </div>
+
+  <div class="section-head"><h2>Quick Predictor</h2></div>
+  <div class="section-sub">Dial in any forecast to see the likely range.</div>
+
+  <div class="predictor">
+    <div class="p-grid">
+      <div class="field"><label>Forecast temp — <span class="val" id="tempVal">92°F</span></label>
+        <input type="range" id="tempSlider" min="70" max="108" value="92"></div>
+      <div class="field"><label>Sky condition</label>
+        <select id="skySelect">
+          <option value="0">Clear / full sun</option>
+          <option value="40">Partly cloudy</option>
+          <option value="80">Mostly cloudy / storms</option>
+        </select></div>
+      <div class="field"><label>Humidity — <span class="val" id="humVal">55%</span></label>
+        <input type="range" id="humSlider" min="15" max="95" value="55"></div>
+      <div class="field"><label>Time of day</label>
+        <select id="timeSelect">
+          <option value="morning">Before 11 AM</option>
+          <option value="midday" selected>11 AM – 4 PM</option>
+          <option value="afternoon">4 PM – 6 PM</option>
+          <option value="evening">After 6 PM</option>
+        </select></div>
+    </div>
+    <div class="result" id="predictorResult"></div>
+  </div>
+
+  <div class="methodology">
+    <h3>How the model was calibrated</h3>
+    <ul>
+      <li>Built from ~65 real WBGT readings (Aug 10 – Sept 4): under 86°F almost always Level 0–1 regardless of sun; 86–89°F holds Level 1 even in full clear sky; 90–95°F is the real transition zone; 96–102°F typically Level 3; 103°F+ typically Level 4.</li>
+      <li>Dry heat still counts — a real heat wave hit Level 3–4 with humidity as low as 28–35%.</li>
+      <li>Sustained multi-day heat holds WBGT elevated for hours across a whole practice window, unlike scattered-storm days which spike and drop fast.</li>
+    </ul>
+  </div>
+
+  <div class="section-head" style="margin-top:30px;"><h2>Evidence Log</h2></div>
+  <div class="log-toggle" id="logToggle">
+    <span id="logCount">58 readings, Aug 10 – Sept 4</span>
+    <span class="arrow">▸</span>
+  </div>
+  <div class="log-table-wrap" id="logTableWrap">
+    <table>
+      <thead><tr><th>Date</th><th>Time</th><th>Level</th><th>Temp</th><th>Humidity</th><th>Cloud</th><th>Note</th></tr></thead>
+      <tbody id="logTableBody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <strong>How to read this:</strong> this site cross-references real weather with your trainer's actual WBGT readings so you can see how sun, humidity, sustained heat, and time of day move the needle for your program specifically. It does not measure WBGT itself and cannot see direct sun exposure, wind, or radiant heat off your field the way the handheld device does. Per MSHSAA policy, a scientifically-approved WBGT instrument must be used on-site whenever temps exceed 80°F, with readings taken hourly starting 30 minutes before practice. Use this site to plan ahead — not to replace that reading. Forecast data refreshes automatically every Saturday morning; it is not live minute-to-minute.
+  </footer>
+
+</div>
+
+<script>
+const levelInfo = {
+  0: {label:"Normal", guidance:"Normal activity. 3 rest breaks/hour, 3 min each."},
+  1: {label:"Level 1", guidance:"Use discretion for intense/prolonged work. Watch at-risk athletes. 4 breaks/hour, 4 min each."},
+  2: {label:"Level 2", guidance:"Max 2 hrs practice. Football: helmet, shoulder pads, shorts only. 4 breaks/hour, 4 min each."},
+  3: {label:"Level 3", guidance:"Consider a later time. Max 1 hr. Football: no pads, no conditioning. 20 min of breaks spread through the hour."},
+  4: {label:"Level 4", guidance:"No outdoor workouts. Cancel or delay until cooler WBGT. Indoor AC workouts only."}
+};
+
+function coreLevel(temp, cloud, hum, bucket){
+  let base;
+  if(temp < 86) base = 0;
+  else if(temp < 90) base = 1;
+  else if(temp < 96) base = 2;
+  else if(temp < 103) base = 3;
+  else base = 4;
+  if(cloud >= 90) base -= 2;
+  else if(cloud >= 70) base -= 1;
+  if(bucket === "morning" || bucket === "evening") base -= 1;
+  if(hum !== null && hum >= 70) base += 1;
+  return Math.max(0, Math.min(4, Math.round(base)));
+}
+
+// ---- Load live forecast data (refreshed weekly by GitHub Actions) ----
+async function loadForecast(){
+  try{
+    const res = await fetch('data/forecast.json?_=' + Date.now());
+    if(!res.ok) throw new Error('no data file yet');
+    const data = await res.json();
+    renderForecast(data);
+  }catch(err){
+    document.getElementById('weekStripContainer').innerHTML = `
+      <div class="error-box">
+        <strong>No forecast data yet.</strong> This site reads a data file that the weekly automation writes.
+        If you just set this up, go to the <b>Actions</b> tab on GitHub and click <b>Run workflow</b> once to generate it —
+        after that it refreshes on its own every Saturday morning.
+      </div>`;
+    document.getElementById('updatedLine').textContent = 'No data yet';
+  }
+}
+
+function renderForecast(data){
+  document.getElementById('locLine').textContent = data.location;
+  document.getElementById('practiceLine').textContent =
+    `Predicted risk band for your practice window (${data.practiceWindow}), refreshed every Saturday morning from the National Weather Service.`;
+  const updated = new Date(data.lastUpdated);
+  document.getElementById('updatedLine').innerHTML =
+    `Forecast pulled<br><b>${updated.toLocaleString('en-US', {dateStyle:'medium', timeStyle:'short'})}</b>`;
+
+  const strip = document.getElementById('weekStrip');
+  const detail = document.getElementById('dayDetail');
+  strip.innerHTML = '';
+
+  data.days.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = 'day-block';
+    el.innerHTML = `
+      <div class="dow">${d.dow.slice(0,3)}</div>
+      <div class="date">${d.date}</div>
+      <div class="practice-tag">${d.practice ? 'PRACTICE' : ''}</div>
+      <div class="gauge lvl-${d.lvlHigh}">${d.lvlLow}${d.lvlLow!==d.lvlHigh ? '–'+d.lvlHigh : ''}</div>
+      <div class="hi">${d.hi}°F</div>
+    `;
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.day-block').forEach(b=>b.classList.remove('active'));
+      el.classList.add('active');
+      detail.classList.add('show');
+      detail.innerHTML = `
+        <div class="dd-title">${d.dow} ${d.date} — Projected Level ${d.lvlLow}${d.lvlLow!==d.lvlHigh ? '–'+d.lvlHigh : ''}
+          ${d.stormRisk ? '<span class="storm-flag">STORM RISK</span>' : ''}
+        </div>
+        <div class="dd-row">High ${d.hi}°F · ${d.sky}${d.humidity !== null ? ' · '+d.humidity+'% humidity' : ''}</div>
+        <span class="dd-badge lvl-${d.lvlHigh}" style="background:var(--lvl${d.lvlHigh})">${levelInfo[d.lvlHigh].label}</span>
+        <div style="margin-top:8px;">${levelInfo[d.lvlHigh].guidance}</div>
+      `;
+    });
+    strip.appendChild(el);
+  });
+  if(strip.children[0]) strip.children[0].click();
+}
+loadForecast();
+
+// ---- Predictor ----
+const tempSlider = document.getElementById('tempSlider');
+const humSlider = document.getElementById('humSlider');
+const skySelect = document.getElementById('skySelect');
+const timeSelect = document.getElementById('timeSelect');
+const tempVal = document.getElementById('tempVal');
+const humVal = document.getElementById('humVal');
+const resultBox = document.getElementById('predictorResult');
+
+function render(){
+  tempVal.textContent = tempSlider.value + "°F";
+  humVal.textContent = humSlider.value + "%";
+  const base = coreLevel(parseInt(tempSlider.value), parseInt(skySelect.value), parseInt(humSlider.value), timeSelect.value);
+  const low = Math.max(0, base - 1), high = Math.min(4, base + 1);
+  const info = levelInfo[base];
+  resultBox.innerHTML = `
+    <div class="result-gauge lvl-${base}"><div class="num">${low}${low!==high?'–'+high:''}</div><div class="lbl">Level</div></div>
+    <div class="result-text"><div class="band">Likely ${info.label}${low!==high ? ' band' : ''}</div><p>${info.guidance}</p></div>
+  `;
+}
+[tempSlider, humSlider, skySelect, timeSelect].forEach(el => el.addEventListener('input', render));
+render();
+
+// ---- Evidence log (fixed historical data) ----
+const logData = [
+  ["Mon 8/10","2:00 PM",1,"93°F","65%","4%","",false],
+  ["Mon 8/10","3:00 PM",2,"92°F","59%","0%","",false],
+  ["Mon 8/10","4:00 PM",4,"95°F","55%","0%","No outdoor workouts called",false],
+  ["Mon 8/10","5:05 PM",2,"95°F","55%","0%","Same temp as 4PM, level dropped",false],
+  ["Tue 8/11","8:00 AM",1,"80°F","77%","0%","",false],
+  ["Tue 8/11","9:00 AM",1,"81°F","70%","0%","",false],
+  ["Tue 8/11","4:30 PM",2,"96°F","52%","81%","Cloud cover held level down",false],
+  ["Tue 8/11","5:25 PM",2,"95°F","49%","0%","",false],
+  ["Tue 8/11","6:30 PM",1,"94°F","54%","0%","",false],
+  ["Wed 8/12","8:10 AM",0,"78°F","76%","0%","",false],
+  ["Wed 8/12","9:30 AM",1,"84°F","68%","0%","",false],
+  ["Wed 8/12","10:55 AM",1,"88°F","60%","0%","",false],
+  ["Wed 8/12","4:30 PM",1,"90°F","60%","0%","Lightning — moved indoors",false],
+  ["Thu 8/13","11:00 AM",2,"87°F","65%","0%","",false],
+  ["Thu 8/13","12:15 PM",3,"90°F","62%","1%","Jumped early",false],
+  ["Thu 8/13","4:30 PM",4,"93°F","48%","86%","No outdoor workouts called",false],
+  ["Thu 8/13","5:02 PM",4,"94°F","47%","0%","",false],
+  ["Thu 8/13","5:35 PM",2,"94°F","48%","0%","Same temp, level dropped",false],
+  ["Thu 8/13","6:27 PM",2,"94°F","50%","0%","",false],
+  ["Thu 8/13","7:34 PM",1,"90°F","56%","0%","",false],
+  ["Fri 8/14","4:35 PM",3,"96°F","46%","0%","",false],
+  ["Fri 8/14","5:30 PM",3,"95°F","45%","0%","",false],
+  ["Fri 8/14","6:00 PM",2,"94°F","48%","0%","",false],
+  ["Sat 8/15","8:32 AM",1,"79°F","72%","92%","Storms overnight",false],
+  ["Mon 8/17","2:20 PM",1,"~85°F","~70%","~70%","Overcast day, high only 85°F",false],
+  ["Tue 8/18","2:00 PM",1,"86°F","49%","6%","",false],
+  ["Tue 8/18","3:28 PM",1,"87°F","44%","0%","",false],
+  ["Tue 8/18","4:20 PM",1,"88°F","42%","100%","Storm rolled in fast",false],
+  ["Tue 8/18","5:30 PM",1,"87°F","43%","100%","",false],
+  ["Wed 8/19","2:20 PM",1,"82°F","60%","98%","Overcast, rainy day",false],
+  ["Thu 8/20","2:00 PM",1,"85°F","60%","73%","Patchy rain, humid",false],
+  ["Fri 8/21","2:30 PM",1,"87°F","48%","13%","87°F clear-ish, still only L1",false],
+  ["Mon 8/24","2:10 PM",1,"82°F","47%","100%","Overcast, cool",false],
+  ["Tue 8/25","2:00 PM",1,"89°F","50%","0%","89°F full sun, still only L1",false],
+  ["Wed 8/26","2:00 PM",2,"94°F","47%","0%","",false],
+  ["Wed 8/26","4:00 PM",2,"91°F","42%","77%","Cloud held it at L2",false],
+  ["Thu 8/27","2:12 PM",1,"86°F","44%","25%","",false],
+  ["Fri 8/28","2:15 PM",1,"88°F","34%","1%","",false],
+  ["Mon 8/31","2:00 PM",3,"104°F","33%","0%","Heat wave begins",true],
+  ["Tue 9/1","2:10 PM",4,"104°F","34%","4%","No outdoor workouts",true],
+  ["Tue 9/1","4:30 PM",3,"104°F","31%","3%","",true],
+  ["Tue 9/1","5:10 PM",3,"102°F","30%","0%","",true],
+  ["Tue 9/1","6:00 PM",2,"100°F","31%","0%","",true],
+  ["Tue 9/1","6:30 PM",2,"~99°F","32%","0%","",true],
+  ["Wed 9/2","1:25 PM",3,"101°F","33%","18%","",true],
+  ["Wed 9/2","2:30 PM",3,"102°F","31%","24%","",true],
+  ["Wed 9/2","3:30 PM",4,"102°F","29%","22%","",true],
+  ["Wed 9/2","4:30 PM",3,"103°F","29%","10%","",true],
+  ["Wed 9/2","5:00 PM",3,"104°F","28%","5%","",true],
+  ["Wed 9/2","5:40 PM",2,"~103°F","28%","6%","",true],
+  ["Thu 9/3","2:15 PM",2,"105°F","33%","4%","Lag effect — first hot reading ran low",true],
+  ["Thu 9/3","3:25 PM",3,"105°F","32%","10%","",true],
+  ["Thu 9/3","4:35 PM",3,"105°F","31%","3%","",true],
+  ["Thu 9/3","5:30 PM",3,"104°F","30%","13%","",true],
+  ["Thu 9/3","6:00 PM",3,"102°F","29%","0%","Held L3 as temp dropped",true],
+  ["Thu 9/3","6:30 PM",2,"~100°F","30%","0%","",true],
+  ["Fri 9/4","2:00 PM",4,"102°F","35%","17%","No outdoor workouts",true],
+  ["Fri 9/4","3:30 PM",4,"~105°F","34%","7%","",true],
+];
+document.getElementById('logCount').textContent = logData.length + " readings, Aug 10 – Sept 4";
+const tbody = document.getElementById('logTableBody');
+logData.forEach(row => {
+  const [day,time,lvl,temp,hum,cloud,note,heatwave] = row;
+  const tr = document.createElement('tr');
+  if(heatwave) tr.className = 'heatwave';
+  tr.innerHTML = `<td>${day}</td><td>${time}</td><td><span class="lvl-pill lvl-${lvl}">${lvl}</span></td><td>${temp}</td><td>${hum}</td><td>${cloud}</td><td class="note-cell">${note}</td>`;
+  tbody.appendChild(tr);
+});
+const logToggle = document.getElementById('logToggle');
+const logWrap = document.getElementById('logTableWrap');
+logToggle.addEventListener('click', () => { logToggle.classList.toggle('open'); logWrap.classList.toggle('show'); });
+</script>
+</body>
+</html>
