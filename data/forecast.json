@@ -1,6 +1,91 @@
 {
   "location": "2549 Hackmann Rd, St. Charles, MO",
   "practiceWindow": "2:40 PM - 5:00 PM",
-  "lastUpdated": null,
-  "days": []
+  "lastUpdated": "2026-09-13T18:51:28.525867+00:00",
+  "days": [
+    {
+      "dow": "Sunday",
+      "date": "9/13",
+      "hi": 84,
+      "sky": "Mostly Sunny",
+      "humidity": null,
+      "cloudEstimate": 20,
+      "stormRisk": false,
+      "practice": false,
+      "lvlLow": 0,
+      "lvlHigh": 1
+    },
+    {
+      "dow": "Monday",
+      "date": "9/14",
+      "hi": 86,
+      "sky": "Isolated Showers And Thunderstorms",
+      "humidity": null,
+      "cloudEstimate": 40,
+      "stormRisk": true,
+      "practice": true,
+      "lvlLow": 0,
+      "lvlHigh": 2
+    },
+    {
+      "dow": "Tuesday",
+      "date": "9/15",
+      "hi": 97,
+      "sky": "Sunny then Chance Showers And Thunderstorms",
+      "humidity": null,
+      "cloudEstimate": 5,
+      "stormRisk": true,
+      "practice": true,
+      "lvlLow": 2,
+      "lvlHigh": 4
+    },
+    {
+      "dow": "Wednesday",
+      "date": "9/16",
+      "hi": 94,
+      "sky": "Slight Chance Showers And Thunderstorms then Mostly Sunny",
+      "humidity": null,
+      "cloudEstimate": 20,
+      "stormRisk": true,
+      "practice": true,
+      "lvlLow": 1,
+      "lvlHigh": 3
+    },
+    {
+      "dow": "Thursday",
+      "date": "9/17",
+      "hi": 93,
+      "sky": "Slight Chance Showers And Thunderstorms",
+      "humidity": null,
+      "cloudEstimate": 40,
+      "stormRisk": true,
+      "practice": true,
+      "lvlLow": 1,
+      "lvlHigh": 3
+    },
+    {
+      "dow": "Friday",
+      "date": "9/18",
+      "hi": 90,
+      "sky": "Mostly Sunny then Slight Chance Showers And Thunderstorms",
+      "humidity": null,
+      "cloudEstimate": 20,
+      "stormRisk": true,
+      "practice": false,
+      "lvlLow": 1,
+      "lvlHigh": 3
+    },
+    {
+      "dow": "Saturday",
+      "date": "9/19",
+      "hi": 87,
+      "sky": "Slight Chance Rain Showers",
+      "humidity": null,
+      "cloudEstimate": 40,
+      "stormRisk": true,
+      "practice": false,
+      "lvlLow": 0,
+      "lvlHigh": 2
+    }
+  ]
 }
